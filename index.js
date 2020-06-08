@@ -36,10 +36,9 @@ function start() {
         "Add Role",
         "add Employees",
         "Update Employee Roles",
-        "Delete departments",
-        "Delete roles",
         "Delete employees",
-        "View Budget",
+        "Delete roles",
+        "Delete departments",
         "Quit"
       ],
     })
@@ -142,12 +141,13 @@ let addDepartment = () => {
         "INSERT INTO department SET ?",
         {
           name: answer.addDep,
+
         },
         function (err) {
           if (err) throw err;
           console.log("The new department has been added successfully");
           viewDepartments();
-          start();
+        
         }
       );
     });
@@ -211,7 +211,6 @@ let addRole = () => {
           if (err) throw err;
           console.log("The new department has been added successfully");
           viewRoles();
-          start();
         }
       );
     });
@@ -335,7 +334,6 @@ let updateRole = () => {
         }
     }
 
-    console.log(chosenRole);
      connection.query("UPDATE employee SET ? WHERE ?",
     [
         {
@@ -356,8 +354,103 @@ let updateRole = () => {
 };
 
 let deleteDep = () => {
+connection.query("SELECT * FROM department", function(err, res){
+    if (err) throw err
+    inquirer.prompt([
+        {
+            name: "chooseDep",
+            type: "rawlist",
+            message: "please choose which role you would like to update to?",
+            choices: function () {
+                const rolesArr = [];
+                for (let i = 0; i < res.length; i++){
+                    rolesArr.push(res[i].name)
+                   
+                }
+                return rolesArr;
+            }
+          },
+    ]).then(function(answer){
+    connection.query("DELETE FROM department WHERE ?",
+    {
+        name: answer.chooseDep
+    },
 
+    function(err){
+        if (err) throw err
+        viewDepartments()
+    }
+    
+    )
+    })
+})
 }
+
+let deleteRole = () => {
+    connection.query("SELECT * FROM role", function(err, res){
+        if (err) throw err
+        inquirer.prompt([
+            {
+                name: "chooseRole",
+                type: "rawlist",
+                message: "please choose which role you would like to update to?",
+                choices: function () {
+                    const rolesArr = [];
+                    for (let i = 0; i < res.length; i++){
+                        rolesArr.push(res[i].title)
+                       
+                    }
+                    return rolesArr;
+                }
+              },
+        ]).then(function(answer){
+        connection.query("DELETE FROM role WHERE ?",
+        {
+            title: answer.chooseRole
+        },
+    
+        function(err){
+            if (err) throw err
+            viewRoles();
+        }
+        
+        )
+        })
+    })
+    }
+
+    let deleteEmployee = () => {
+        connection.query("SELECT * FROM employee", function(err, res){
+            if (err) throw err
+            inquirer.prompt([
+                {
+                    name: "chooseEmp",
+                    type: "rawlist",
+                    message: "please choose which role you would like to update to?",
+                    choices: function () {
+                        const rolesArr = [];
+                        for (let i = 0; i < res.length; i++){
+                            rolesArr.push(res[i].first_name)
+                           
+                        }
+                        return rolesArr;
+                    }
+                  },
+            ]).then(function(answer){
+            connection.query("DELETE FROM employee WHERE ?",
+            {
+                first_name: answer.chooseEmp
+            },
+        
+            function(err){
+                if (err) throw err
+                viewEmployee();
+            }
+            
+            )
+            })
+        })
+        }
 
 let quitApp = () => {
 inquirer.prompt({
